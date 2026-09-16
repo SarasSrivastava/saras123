@@ -1,0 +1,13 @@
+content,channel,customer_label,created_at
+"Onboarding took forever — I couldn’t figure out how to invite my team members.",SUPPORT_TICKET,Enterprise / Fortune 500,2024-09-01
+"The new dashboard is gorgeous and finally fast. Huge improvement.",APP_STORE,Daily Power User,2024-09-02
+"It does the job, but the mobile experience needs work. Responsive layout cuts off on iOS.",NPS_SURVEY,Mobile Exec,2024-09-03
+"Prospect wants SSO / Okta before they’ll sign — third time this month.",SALES_CALL,VP Security / Banking,2024-09-04
+"Love the new export feature, saved me an hour today.",COMMUNITY_POST,Operations Lead,2024-09-05
+"Billing page keeps timing out when I try to download an invoice PDF.",SUPPORT_TICKET,Finance Director,2024-09-06
+"Search is lightning fast now, finding past customer tickets in under 100ms.",COMMUNITY_POST,Support Team Lead,2024-09-07
+"We were charged twice for the extra seat expansion. Need immediate resolution.",SUPPORT_TICKET,Startup Founder,2024-09-08
+"Need custom webhook alerts whenever negative sentiment spikes on VIP accounts.",COMMUNITY_POST,Head of Customer Success,2024-09-09
+"2FA authentication code SMS never arrived on international carrier.",SUPPORT_TICKET,Global Contractor,2024-09-10
+"The VoC automated reports summarize our weekly triage perfectly for executive standups.",APP_STORE,CPO / ScaleUp,2024-09-11
+"Dark mode contrast ratio is spot on, easy on eyes during night shifts.",COMMUNITY_POST,Lead Engineer,2024-09-12

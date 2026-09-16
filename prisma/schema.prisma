@@ -1,0 +1,173 @@
+// Project LOOP - Prisma Schema
+// Database model for AI Customer-Feedback Intelligence Platform
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum Sentiment {
+  POS
+  NEU
+  NEG
+}
+
+enum FeedbackStatus {
+  NEW
+  REVIEWED
+  ACTIONED
+}
+
+enum ChannelType {
+  SUPPORT_TICKET
+  APP_STORE
+  NPS_SURVEY
+  SALES_CALL
+  COMMUNITY_POST
+  INTERCOM_CHAT
+  OTHER
+}
+
+model Workspace {
+  id          String     @id @default(cuid())
+  name        String
+  domain      String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  users       User[]
+  feedback    Feedback[]
+  themes      Theme[]
+  reports     Report[]
+
+  @@map("workspaces")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(ANALYST)
+  avatarUrl    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  workspaceId  String
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  reports      Report[]   @relation("GeneratedReports")
+
+  @@index([workspaceId])
+  @@map("users")
+}
+
+model Feedback {
+  id             String          @id @default(cuid())
+  content        String          @db.Text
+  channel        ChannelType     @default(SUPPORT_TICKET)
+  sourceRef      String?         // e.g. ticket #, app store review id, user id
+  customerLabel  String?         // e.g. "Enterprise / Fortune 500", "Free Tier", "customer@stripe.com"
+  
+  sentiment      Sentiment       @default(NEU)
+  sentimentScore Float           @default(0.0) // -1.0 to +1.0
+  featureArea    String?         // e.g. "Onboarding", "Billing", "SSO", "Performance"
+  aiRationale    String?         @db.Text
+  
+  status         FeedbackStatus  @default(NEW)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  workspaceId    String
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  themes         FeedbackTheme[]
+  embedding      Embedding?
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, sentiment])
+  @@index([workspaceId, channel])
+  @@index([createdAt])
+  @@map("feedback")
+}
+
+model Theme {
+  id          String          @id @default(cuid())
+  name        String
+  description String?         @db.Text
+  color       String          @default("#6366f1")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  feedback    FeedbackTheme[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@map("themes")
+}
+
+model FeedbackTheme {
+  id          String    @id @default(cuid())
+  confidence  Float     @default(1.0) // 0.0 to 1.0 confidence
+  createdAt   DateTime  @default(now())
+
+  feedbackId  String
+  feedback    Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  themeId     String
+  theme       Theme     @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, themeId])
+  @@index([feedbackId])
+  @@index([themeId])
+  @@map("feedback_themes")
+}
+
+model Embedding {
+  id          String                 @id @default(cuid())
+  vector      Unsupported("vector")? // pgvector 1536-dim or equivalent
+  rawVector   String?                @db.Text // serialized JSON vector for fallback/portable DBs
+  createdAt   DateTime               @default(now())
+
+  feedbackId  String                 @unique
+  feedback    Feedback               @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("embeddings")
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  title       String
+  periodStart DateTime
+  periodEnd   DateTime
+  contentJson Json      // structured executive summary, themes, sentiment breakdown, quotes, actions
+  summaryText String?   @db.Text
+  createdAt   DateTime  @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  generatedById String
+  generatedBy   User      @relation("GeneratedReports", fields: [generatedById], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId])
+  @@index([createdAt])
+  @@map("reports")
+}
