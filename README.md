@@ -163,7 +163,9 @@ Every database query and API operation filters strictly on `workspaceId`. A user
 
 ---
 
-## 👥 Authors & Acknowledgements
-- **Author**: Zidio Development Web Development Track Intern
-- **Program**: Zidio Internship Cohort 2024–2026
-- **Project**: Project LOOP — AI Customer-Feedback Intelligence Platform
+## 👥 Author & Project
+
+- **Developer:** Saras Srivastava
+- **Program:** Zidio Development Web Development Internship
+- **Project:** LOOP — AI Customer-Feedback Intelligence Platform
+- **Live Demo:** https://loop-ai-customer-feedback-two.vercel.app/
